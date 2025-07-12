@@ -8,6 +8,10 @@ import insurance.module.insurancemodule.entity.Insurance;
 import insurance.module.insurancemodule.exception.InsuranceIdIsNotFoundException;
 import insurance.module.insurancemodule.model.InsuranceDTO;
 import insurance.module.insurancemodule.repository.InsuranceRepository;
+import insurance.module.insurancemodule.client.UserServiceClient;
+import insurance.module.insurancemodule.client.BookingServiceClient;
+import insurance.module.insurancemodule.client.UserDTO;
+import insurance.module.insurancemodule.client.BookingDTO;
 
 import java.time.LocalDateTime; // Import for LocalDateTime
 import java.util.List;
@@ -21,6 +25,12 @@ public class InsuranceService {
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
+
+    @Autowired
+    private BookingServiceClient bookingServiceClient;
 
     // Admin/Internal method: Use this to create new predefined packages or for general CRUD
     // For predefined packages, DTO should have status "PREDEFINED_AVAILABLE" and null userId/bookingId/selectionDate
@@ -52,7 +62,27 @@ public class InsuranceService {
             throw new IllegalArgumentException("User ID, Booking ID, and the ID of the selected package are required.");
         }
 
-        // 2. Fetch the details of the chosen predefined package template
+        // 2. Validate user exists
+        try {
+            UserDTO user = userServiceClient.getUserById(userId);
+            if (user == null || user.getUserId() == null) {
+                throw new IllegalArgumentException("User not found with ID: " + userId);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to validate user: " + e.getMessage());
+        }
+
+        // 3. Validate booking exists
+        try {
+            BookingDTO booking = bookingServiceClient.getBookingById(bookingId);
+            if (booking == null || booking.getBookingId() == null) {
+                throw new IllegalArgumentException("Booking not found with ID: " + bookingId);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to validate booking: " + e.getMessage());
+        }
+
+        // 4. Fetch the details of the chosen predefined package template
         Insurance chosenPackageTemplate = insuranceRepository.findById(predefinedPackageId)
                 .orElseThrow(() -> new InsuranceIdIsNotFoundException("Predefined Insurance Package with ID " + predefinedPackageId + " not found."));
 

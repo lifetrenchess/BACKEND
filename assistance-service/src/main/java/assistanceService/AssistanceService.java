@@ -8,6 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import assistanceEntity.AssistanceEntity;
 import assistanceModel.AssistanceDTO;
 import assistanceRepository.AssistanceRepository;
+import cts.assistance.client.UserServiceClient;
+import cts.assistance.client.UserDTO;
+// import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+// import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 
 import java.time.LocalDateTime; // Import LocalDateTime
 import java.util.List;
@@ -23,6 +27,12 @@ public class AssistanceService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private UserServiceClient userServiceClient;
+
+    // @Autowired
+    // private CircuitBreakerFactory circuitBreakerFactory;
+
     /**
      * Allows a customer to create a new assistance request.
      * Sets initial status to "Pending" and handles ID generation.
@@ -31,6 +41,22 @@ public class AssistanceService {
      * @return The created AssistanceDTO with generated requestId and initial status.
      */
     public AssistanceDTO createRequest(AssistanceDTO dto) {
+        // Validate user exists before creating assistance request using circuit breaker
+        // CircuitBreaker circuitBreaker = circuitBreakerFactory.create("user-service");
+        // UserDTO user = circuitBreaker.run(
+        //     () -> userServiceClient.getUserById(dto.getUserId()),
+        //     throwable -> {
+        //         throw new RuntimeException("User service unavailable: " + throwable.getMessage());
+        //     }
+        // );
+        
+        // Direct call without circuit breaker
+        UserDTO user = userServiceClient.getUserById(dto.getUserId());
+        
+        if (user == null || user.getUserId() == null) {
+            throw new RuntimeException("User not found with ID: " + dto.getUserId());
+        }
+
         // Ensure that client-provided IDs, statuses, and resolution details are ignored on creation.
         dto.setRequestId(null);
         dto.setStatus("Pending"); // Default status for a new request

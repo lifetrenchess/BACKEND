@@ -12,6 +12,10 @@ import cts.travelpackagebookingsystem.enums.BookingStatus;
 import cts.travelpackagebookingsystem.exception.ResourceNotFoundException;
 import cts.travelpackagebookingsystem.model.BookingDTO;
 import cts.travelpackagebookingsystem.repository.BookingRepository;
+import cts.travelpackagebookingsystem.client.UserServiceClient;
+import cts.travelpackagebookingsystem.client.PackageServiceClient;
+import cts.travelpackagebookingsystem.client.UserDTO;
+import cts.travelpackagebookingsystem.client.PackageDTO;
 @Service
 public class BookingService {
 	@Autowired
@@ -20,8 +24,37 @@ public class BookingService {
 	@Autowired
 	private ModelMapper modelMapper;
 	
+	@Autowired
+	private UserServiceClient userServiceClient;
+	
+	@Autowired
+	private PackageServiceClient packageServiceClient;
+	
 	@Transactional
 	public BookingDTO saveBooking(BookingDTO bookingDTO) {
+		// Validate user exists
+		try {
+			UserDTO user = userServiceClient.getUserById(bookingDTO.getUserId());
+			if (user == null || user.getUserId() == null) {
+				throw new RuntimeException("User not found with ID: " + bookingDTO.getUserId());
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to validate user: " + e.getMessage());
+		}
+		
+		// Validate package exists and is active
+		try {
+			PackageDTO packageInfo = packageServiceClient.getPackageById(bookingDTO.getPackageId());
+			if (packageInfo == null || packageInfo.getPackageId() == null) {
+				throw new RuntimeException("Package not found with ID: " + bookingDTO.getPackageId());
+			}
+			if (!packageInfo.getActive()) {
+				throw new RuntimeException("Package is not active: " + bookingDTO.getPackageId());
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to validate package: " + e.getMessage());
+		}
+		
 		Booking booking = modelMapper.map(bookingDTO, Booking.class);
 		booking.setStatus(BookingStatus.CONFIRMED);
 		Booking savedBooking = bookingRepo.save(booking);

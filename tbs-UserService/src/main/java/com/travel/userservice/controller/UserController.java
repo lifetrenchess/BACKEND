@@ -20,7 +20,7 @@ import java.util.List;
  * Handles registration, login, profile, and admin operations.
  */
 @RestController
-@RequestMapping("/user-api/users")
+@RequestMapping("/api/users")
 public class UserController {
    
     @Autowired
