@@ -1,6 +1,5 @@
-package cts.rcss;
+package cts.assistance.client;
 
-import cts.rcss.model.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,4 +9,4 @@ public interface UserServiceClient {
 
     @GetMapping("/api/users/{userId}")
     UserDTO getUserById(@PathVariable("userId") Long userId);
-}
+} 

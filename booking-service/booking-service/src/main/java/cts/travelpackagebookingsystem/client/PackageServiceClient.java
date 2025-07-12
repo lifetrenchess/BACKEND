@@ -1,6 +1,5 @@
-package cts.rcss;
+package cts.travelpackagebookingsystem.client;
 
-import cts.rcss.model.PackageDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,4 +9,4 @@ public interface PackageServiceClient {
 
     @GetMapping("/api/packages/{packageId}")
     PackageDTO getPackageById(@PathVariable("packageId") Long packageId);
-}
+} 

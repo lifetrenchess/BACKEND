@@ -22,15 +22,15 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
-//    @PostMapping
-//    public ReviewDTO createReview(@RequestBody @Valid CreateReviewDTO dto) {
-//        return reviewService.createReview(dto);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ReviewDTO> updateReview(@PathVariable int id, @RequestBody @Valid ReviewDTO dto) {
-//        return ResponseEntity.ok(reviewService.updateReview(id, dto));
-//    }
+    @PostMapping
+    public ReviewDTO createReview(@RequestBody @Valid CreateReviewDTO dto) {
+        return reviewService.createReview(dto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReviewDTO> updateReview(@PathVariable int id, @RequestBody @Valid ReviewDTO dto) {
+        return ResponseEntity.ok(reviewService.updateReview(id, dto));
+    }
 
     @PostMapping("/{id}/response")
     public ResponseEntity<ReviewDTO> respondToReview(@PathVariable int id, @RequestBody @Valid AgentResponseDTO responseDTO) {

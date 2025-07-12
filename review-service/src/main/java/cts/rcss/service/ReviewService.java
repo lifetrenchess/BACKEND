@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 @Service
 public class ReviewService {
 	
-//	@Autowired
-//	private UserServiceClient userServiceClient;
-//
-//	@Autowired
-//	private PackageServiceClient packageServiceClient;
+	@Autowired
+	private UserServiceClient userServiceClient;
+
+	@Autowired
+	private PackageServiceClient packageServiceClient;
 
 
     @Autowired
@@ -36,56 +36,72 @@ public class ReviewService {
         return convertToDTO(review);
     }
 
-//    public ReviewDTO createReview(CreateReviewDTO dto) {
-//        // Validate user
-//        UserDTO user = userServiceClient.getUserById(dto.getuserId());
-//        if (user == null || user.getUserId() != dto.getuserId()) {
-//            throw new ResourceNotFoundException("User not found with ID: " + dto.getuserId());
-//        }
+    public ReviewDTO createReview(CreateReviewDTO dto) {
+        // Validate user
+        try {
+            UserDTO user = userServiceClient.getUserById(dto.getuserId());
+            if (user == null || user.getUserId() == null) {
+                throw new ResourceNotFoundException("User not found with ID: " + dto.getuserId());
+            }
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Failed to validate user: " + e.getMessage());
+        }
+
+        // Validate package
+        try {
+            PackageDTO pkg = packageServiceClient.getPackageById(dto.getpackageId());
+            if (pkg == null || pkg.getPackageId() == null) {
+                throw new ResourceNotFoundException("Package not found with ID: " + dto.getpackageId());
+            }
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Failed to validate package: " + e.getMessage());
+        }
+
+        // Create and save review
+        Review review = new Review();
+        review.setuserId(dto.getuserId());
+        review.setpackageId(dto.getpackageId());
+        review.setRating(dto.getRating());
+        review.setComment(dto.getComment());
+        // review.setTimestamp(LocalDateTime.now()); // Set current timestamp
+
+        Review saved = reviewRepository.save(review);
+        return convertToDTO(saved);
+    }
 //
-//        // Validate package
-//        PackageDTO pkg = packageServiceClient.getPackageById(dto.getpackageId());
-//        if (pkg == null || pkg.getPackageId() != dto.getpackageId()) {
-//            throw new ResourceNotFoundException("Package not found with ID: " + dto.getpackageId());
-//        }
-//
-//        // Create and save review
-//        Review review = new Review();
-//        review.setuserId(dto.getuserId());
-//        review.setpackageId(dto.getpackageId());
-//        review.setRating(dto.getRating());
-//        review.setComment(dto.getComment());
-//       // review.setTimestamp(LocalDateTime.now()); // Set current timestamp
-//
-//        Review saved = reviewRepository.save(review);
-//        return convertToDTO(saved);
-//    }
-//
-//    public ReviewDTO updateReview(int id, ReviewDTO dto) {
-//        Review review = reviewRepository.findById(id)
-//                .orElseThrow(() -> new ResourceNotFoundException("Review not found with ID: " + id));
-//
-//        // Validate user
-//        UserDTO user = userServiceClient.getUserById(dto.getuserId());
-//        if (user == null || user.getUserId() != dto.getuserId()) {
-//            throw new ResourceNotFoundException("User not found with ID: " + dto.getuserId());
-//        }
-//
-//        // Validate package
-//        PackageDTO pkg = packageServiceClient.getPackageById(dto.getpackageId());
-//        if (pkg == null || pkg.getPackageId() != dto.getpackageId()) {
-//            throw new ResourceNotFoundException("Package not found with ID: " + dto.getpackageId());
-//        }
-//
-//        review.setuserId(dto.getuserId());
-//        review.setpackageId(dto.getpackageId());
-//        review.setRating(dto.getRating());
-//        review.setComment(dto.getComment());
-//        review.setTimestamp(dto.getTimestamp());
-//        review.setAgentResponse(dto.getAgentResponse());
-//
-//        return convertToDTO(reviewRepository.save(review));
-//    }
+    public ReviewDTO updateReview(int id, ReviewDTO dto) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with ID: " + id));
+
+        // Validate user
+        try {
+            UserDTO user = userServiceClient.getUserById(dto.getuserId());
+            if (user == null || user.getUserId() == null) {
+                throw new ResourceNotFoundException("User not found with ID: " + dto.getuserId());
+            }
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Failed to validate user: " + e.getMessage());
+        }
+
+        // Validate package
+        try {
+            PackageDTO pkg = packageServiceClient.getPackageById(dto.getpackageId());
+            if (pkg == null || pkg.getPackageId() == null) {
+                throw new ResourceNotFoundException("Package not found with ID: " + dto.getpackageId());
+            }
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Failed to validate package: " + e.getMessage());
+        }
+
+        review.setuserId(dto.getuserId());
+        review.setpackageId(dto.getpackageId());
+        review.setRating(dto.getRating());
+        review.setComment(dto.getComment());
+        review.setTimestamp(dto.getTimestamp());
+        review.setAgentResponse(dto.getAgentResponse());
+
+        return convertToDTO(reviewRepository.save(review));
+    }
 
 
     public ReviewDTO respondToReview(int id, String response) {
