@@ -79,6 +79,19 @@ public class AssistanceController {
     }
 
     /**
+     * Endpoint for customers to retrieve their own assistance requests.
+     * Maps to GET /api/assistance/user/{userId}
+     *
+     * @param userId The ID of the user whose requests to retrieve.
+     * @return ResponseEntity with a list of AssistanceDTOs for the user.
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AssistanceDTO>> getRequestsByUserId(@PathVariable Long userId) {
+        List<AssistanceDTO> requests = assistanceRequestService.getRequestsByUserId(userId);
+        return ResponseEntity.ok(requests);
+    }
+
+    /**
      * Endpoint for an admin to resolve a specific assistance request.
      * This endpoint should be secured to only allow admin access.
      * Maps to PUT /api/assistance/{id}/resolve

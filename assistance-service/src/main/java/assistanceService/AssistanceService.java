@@ -96,6 +96,20 @@ public class AssistanceService {
     }
 
     /**
+     * Retrieves all assistance requests for a specific user.
+     * This method is intended for customers to view their own requests.
+     *
+     * @param userId The ID of the user whose requests to retrieve.
+     * @return A list of AssistanceDTOs for the specified user.
+     */
+    public List<AssistanceDTO> getRequestsByUserId(Long userId) {
+        List<AssistanceEntity> requestList = requestRepository.findByUserId(userId);
+        return requestList.stream()
+                          .map(entity -> modelMapper.map(entity, AssistanceDTO.class))
+                          .collect(Collectors.toList());
+    }
+
+    /**
      * Allows an admin to resolve a specific assistance request.
      * Updates the status to "Resolved", sets the resolution time, and adds the admin's reply.
      *

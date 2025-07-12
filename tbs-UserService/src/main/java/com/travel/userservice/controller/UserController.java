@@ -20,7 +20,7 @@ import java.util.List;
  * Handles registration, login, profile, and admin operations.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/user-api/users")
 public class UserController {
    
     @Autowired
@@ -38,6 +38,17 @@ public class UserController {
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
     	System.out.println(userDto);
         return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
+    }
+
+    /**
+     * Create a new user by admin (allows any role assignment).
+     * @param userDto User creation data
+     * @return Created user
+     */
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> createUserByAdmin(@Valid @RequestBody UserDto userDto) {
+        return new ResponseEntity<>(userService.createUserByAdmin(userDto), HttpStatus.CREATED);
     }
 
     /**

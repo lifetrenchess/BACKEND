@@ -49,9 +49,13 @@ public class PaymentController {
 	
 	
 	@PostMapping
-	public ResponseEntity<PaymentDTO> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
-		PaymentDTO saved = paymentService.createPayment(paymentDTO);
-		return new ResponseEntity<>(saved,HttpStatus.CREATED);
+	public ResponseEntity<OrderResponse> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
+		try {
+			OrderResponse orderResponse = paymentService.createRazorpayOrder(paymentDTO);
+			return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@GetMapping

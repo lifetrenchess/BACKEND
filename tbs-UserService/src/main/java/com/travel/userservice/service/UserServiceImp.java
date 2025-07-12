@@ -60,6 +60,20 @@ public class UserServiceImp implements UserService {
 		return modelMapper.map(savedUser, UserDto.class);
 	}
 
+	@Transactional
+	public UserDto createUserByAdmin(UserDto userDto) {
+		if (userRepository.existsByUserEmail(userDto.getUserEmail())) {
+			throw new UserAlreadyExistsException("User with this email already exists");
+		}
+
+		User user = modelMapper.map(userDto, User.class);
+		// Allow any role assignment (ADMIN, AGENT, USER)
+		user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
+
+		User savedUser = userRepository.save(user);
+		return modelMapper.map(savedUser, UserDto.class);
+	}
+
 	@Override
 	public String authenticateUser(AuthDto authDto) {
 		try {

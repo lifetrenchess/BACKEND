@@ -1,11 +1,8 @@
--- Add active column to travel_package table if it doesn't exist
-ALTER TABLE travel_package ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT TRUE;
-
--- Update existing packages to be active by default
-UPDATE travel_package SET active = TRUE WHERE active IS NULL;
+-- Add active column to travel_package table (MySQL doesn't support IF NOT EXISTS in ADD COLUMN)
+-- This will be handled by JPA/Hibernate schema generation instead
 
 -- Insert sample packages with active status
-INSERT INTO travel_package (title, description, duration, price, include_service, image, highlights, active) VALUES
+INSERT INTO travel_package (title, description, duration, price, include_service, main_image, highlights, active) VALUES
 ('Paris Adventure', 'Experience the magic of Paris with guided tours of the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral.', 7, 2500.00, 'Flights, Hotel, Guided Tours, Breakfast', 'paris.jpg', 'Eiffel Tower, Louvre Museum, Seine River Cruise', TRUE),
 ('Tokyo Discovery', 'Explore the vibrant culture of Tokyo with visits to Shibuya, Akihabara, and traditional temples.', 10, 3200.00, 'Flights, Hotel, Metro Pass, Cultural Tours', 'tokyo.jpg', 'Shibuya Crossing, Senso-ji Temple, Tsukiji Market', TRUE),
 ('New York City Experience', 'Discover the Big Apple with Broadway shows, Central Park, and iconic landmarks.', 8, 2800.00, 'Flights, Hotel, Broadway Tickets, City Tours', 'nyc.jpg', 'Times Square, Central Park, Statue of Liberty', TRUE),

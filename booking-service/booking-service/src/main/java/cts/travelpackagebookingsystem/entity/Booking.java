@@ -35,10 +35,21 @@ public class Booking {
 	@Enumerated(EnumType.STRING)
 	private BookingStatus status;
 	
-	 @Column(name = "razorpay_payment_id") // Maps to a column named 'razorpay_payment_id' in your DB
-	    private String razorpayPaymentId;
+	@Column(name = "razorpay_payment_id")
+	private String razorpayPaymentId;
 	
-	@OneToOne( mappedBy = "booking",cascade = CascadeType.ALL)
+	// Traveler information
+	private Integer adults;
+	private Integer children;
+	private Integer infants;
+	private String contactFullName;
+	private String contactEmail;
+	private String contactPhone;
+	private String travelerNames;
+	private Boolean hasInsurance;
+	private String insurancePlan;
+	
+	@OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
 	@JsonIgnore
 	private Payment payment;
     

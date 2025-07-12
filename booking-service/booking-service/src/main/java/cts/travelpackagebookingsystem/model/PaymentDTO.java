@@ -27,6 +27,8 @@ public class PaymentDTO {
 	@NotBlank(message = "Payment method is required")
 	private String paymentMethod;
 	
+	@NotBlank(message = "Currency is required")
+	private String currency;
 	
 	private Long bookingId;
 

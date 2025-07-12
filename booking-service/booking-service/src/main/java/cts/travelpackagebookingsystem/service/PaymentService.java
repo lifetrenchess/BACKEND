@@ -11,8 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.razorpay.RazorpayException; // Keep this if other methods in this service need it
-import com.razorpay.Utils; // Keep this if other methods in this service need it
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
+import com.razorpay.Utils;
 
 import cts.travelpackagebookingsystem.enums.BookingStatus; // Make sure these enums exist
 import cts.travelpackagebookingsystem.enums.PaymentStatus; // Make sure these enums exist
@@ -20,6 +21,7 @@ import cts.travelpackagebookingsystem.entity.Booking;
 import cts.travelpackagebookingsystem.entity.Payment;
 import cts.travelpackagebookingsystem.exception.ResourceNotFoundException;
 import cts.travelpackagebookingsystem.model.PaymentDTO;
+import cts.travelpackagebookingsystem.model.OrderResponse;
 import cts.travelpackagebookingsystem.repository.BookingRepository;
 import cts.travelpackagebookingsystem.repository.PaymentRepository;
 
@@ -38,16 +40,61 @@ public class PaymentService {
 	@Autowired
 	private BookingRepository bookingRepo;
 	
-	 @Value("${razorpay.key.id}")
-	    private String razorpayKeyId;
+	@Autowired
+	private RazorpayClient razorpayClient;
+	
+	@Value("${razorpay.key.id}")
+	private String razorpayKeyId;
 
-	    @Value("${razorpay.key.secret}")
-	    private String razorpayKeySecret;
+	@Value("${razorpay.key.secret}")
+	private String razorpayKeySecret;
 
-	    @Value("${razorpay.currency}")
-	    private String razorpayCurrency; // This property is not used in the provided methods, but kept for completeness
+	@Value("${razorpay.currency}")
+	private String razorpayCurrency;
 
-	    @Transactional
+	// Create Razorpay Order
+	public OrderResponse createRazorpayOrder(PaymentDTO paymentDTO) throws RazorpayException {
+		try {
+			// Validate booking exists
+			Booking booking = bookingRepo.findById(paymentDTO.getBookingId())
+				.orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + paymentDTO.getBookingId()));
+			
+			// Create JSON object for Razorpay order
+			JSONObject orderRequest = new JSONObject();
+			orderRequest.put("amount", paymentDTO.getAmount() * 100); // Convert to paisa
+			orderRequest.put("currency", paymentDTO.getCurrency());
+			orderRequest.put("receipt", "booking_" + paymentDTO.getBookingId());
+			
+			// Create order with Razorpay
+			com.razorpay.Order order = razorpayClient.orders.create(orderRequest);
+			
+			// Create payment record in database
+			Payment payment = new Payment();
+			payment.setUserId(paymentDTO.getUserId());
+			payment.setAmount(paymentDTO.getAmount());
+			payment.setStatus(PaymentStatus.PENDING);
+			payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+			payment.setRazorpayOrderId(order.get("id").toString());
+			payment.setCurrency(paymentDTO.getCurrency());
+			payment.setBooking(booking);
+			
+			// Save payment
+			Payment savedPayment = paymentRepo.save(payment);
+			
+			// Return order response
+			return new OrderResponse(
+				order.get("id").toString(),
+				paymentDTO.getCurrency(),
+				paymentDTO.getAmount(),
+				razorpayKeyId
+			);
+			
+		} catch (RazorpayException e) {
+			throw new RuntimeException("Failed to create Razorpay order: " + e.getMessage(), e);
+		}
+	}
+
+	@Transactional
 	    public String verifyPayment(String razorpayOrderId, String razorpayPaymentId, String razorpaySignature) {
 	        try {
 	            JSONObject attributesForVerification = new JSONObject();
@@ -99,22 +146,17 @@ public class PaymentService {
 	        Booking associatedBooking = updatedPayment.getBooking();
 	        
 	        if (associatedBooking != null) {
-	            // FIX: Get the ID from the Booking object if you're using findById(Long id)
-	            // This line was problematic: bookingRepo.findById(associatedBookingId).ifPresent(booking -> {
-	            // It should be: bookingRepo.findById(associatedBooking.getId()).ifPresent(booking -> {
-	            bookingRepo.findById(associatedBooking.getUserId()).ifPresent(booking -> { // Corrected
-	                // FIX: Use enum literals for setting status
-	                if (PaymentStatus.COMPLETED.name().equalsIgnoreCase(newStatus)) {
-	                    booking.setStatus(BookingStatus.CONFIRMED); // Corrected to use enum
-	                    booking.setPayment(payment);
-	                    System.out.println("Payment " + razorpayPaymentId + " for Order " + razorpayOrderId + " completed. Booking " + associatedBooking.getUserId() + " confirmed.");
-	                } else if (PaymentStatus.FAILED.name().equalsIgnoreCase(newStatus)) {
-	                    booking.setStatus(BookingStatus.PENDING); // Corrected to use enum
-	                    booking.setPayment(null);
-	                    System.out.println("Payment " + razorpayPaymentId + " for Order " + razorpayOrderId + " failed. Booking " + associatedBooking.getUserId() + " status updated to PENDING_PAYMENT.");
-	                }
-	                bookingRepo.save(booking);
-	            });
+	            // Update the booking status based on payment result
+	            if (PaymentStatus.COMPLETED.name().equalsIgnoreCase(newStatus)) {
+	                associatedBooking.setStatus(BookingStatus.CONFIRMED);
+	                associatedBooking.setPayment(payment);
+	                System.out.println("Payment " + razorpayPaymentId + " for Order " + razorpayOrderId + " completed. Booking " + associatedBooking.getBookingId() + " confirmed.");
+	            } else if (PaymentStatus.FAILED.name().equalsIgnoreCase(newStatus)) {
+	                associatedBooking.setStatus(BookingStatus.PENDING);
+	                associatedBooking.setPayment(null);
+	                System.out.println("Payment " + razorpayPaymentId + " for Order " + razorpayOrderId + " failed. Booking " + associatedBooking.getBookingId() + " status updated to PENDING.");
+	            }
+	            bookingRepo.save(associatedBooking);
 	        } else {
 	            System.err.println("Warning: Payment " + razorpayOrderId + " has no associated Booking entity.");
 	        }
