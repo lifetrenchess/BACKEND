@@ -12,6 +12,10 @@ import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/packages")
@@ -24,8 +28,43 @@ public class TravelPackageController {
 	private FileUploadService fileUploadService;
 
 	@PostMapping
-	public ResponseEntity<TravelPackageDto> createPackage(@Valid @RequestBody TravelPackageDto travelPackageDto) {
-		return ResponseEntity.ok(travelPackageService.createPackage(travelPackageDto));
+	public ResponseEntity<TravelPackageDto> createPackage(
+			@RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+			@RequestParam(value = "additionalImages", required = false) MultipartFile[] additionalImages,
+			@RequestParam("packageData") String packageData) {
+		
+		try {
+			// Parse package data from JSON string
+			ObjectMapper mapper = new ObjectMapper();
+			TravelPackageDto travelPackageDto = mapper.readValue(packageData, TravelPackageDto.class);
+			
+			// Handle main image upload
+			if (mainImage != null && !mainImage.isEmpty()) {
+				String mainImageUrl = fileUploadService.uploadImage(mainImage);
+				travelPackageDto.setMainImage(mainImageUrl);
+			}
+			
+			// Handle additional images upload
+			if (additionalImages != null && additionalImages.length > 0) {
+				List<String> additionalImageUrls = new ArrayList<>();
+				for (MultipartFile image : additionalImages) {
+					if (image != null && !image.isEmpty()) {
+						String imageUrl = fileUploadService.uploadImage(image);
+						additionalImageUrls.add(imageUrl);
+					}
+				}
+				travelPackageDto.setImages(additionalImageUrls);
+			}
+			
+			// Create package with all data including images
+			TravelPackageDto createdPackage = travelPackageService.createPackage(travelPackageDto);
+			return ResponseEntity.ok(createdPackage);
+			
+		} catch (IOException e) {
+			return ResponseEntity.badRequest().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	
 	@PostMapping("/{id}/image")

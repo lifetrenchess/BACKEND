@@ -14,6 +14,7 @@ import java.util.UUID;
 public class FileUploadService {
     
     private static final String UPLOAD_DIR = "uploads/packages/";
+    private static final String GATEWAY_URL = "http://localhost:9999"; // API Gateway URL
     
     public String uploadImage(MultipartFile file) throws IOException {
         // Create upload directory if it doesn't exist
@@ -31,19 +32,21 @@ public class FileUploadService {
         Path filePath = uploadPath.resolve(uniqueFilename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         
-        // Return the file path for storage in database
-        return UPLOAD_DIR + uniqueFilename;
+        // Return the URL that can be accessed through API Gateway
+        return GATEWAY_URL + "/api/packages/images/" + uniqueFilename;
     }
     
-    public void deleteImage(String imagePath) {
+    public void deleteImage(String imageUrl) {
         try {
-            Path path = Paths.get(imagePath);
+            // Extract the filename from the URL
+            String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+            Path path = Paths.get(UPLOAD_DIR, filename);
             if (Files.exists(path)) {
                 Files.delete(path);
             }
         } catch (IOException e) {
             // Log error but don't throw exception
-            System.err.println("Error deleting image: " + imagePath);
+            System.err.println("Error deleting image: " + imageUrl);
         }
     }
 } 

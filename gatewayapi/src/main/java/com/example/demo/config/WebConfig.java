@@ -13,9 +13,18 @@ public class WebConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:8081"); // Your React frontend
+        
+        // Allow all frontend URLs
+        config.addAllowedOrigin("http://localhost:3000"); // React dev server
+        config.addAllowedOrigin("http://localhost:8082"); // Alternative frontend port
+        config.addAllowedOrigin("http://10.187.136.187:8082"); // Network frontend
+        
+        // Allow all headers and methods
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        
+        // Allow credentials (cookies, authorization headers)
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

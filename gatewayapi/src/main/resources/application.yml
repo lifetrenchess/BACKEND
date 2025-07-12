@@ -5,6 +5,14 @@ server:
 spring:
   application:
     name: GATEWAY-API
+  
+  # File upload configuration for multipart requests
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+      file-size-threshold: 2KB
  
   cloud:
     gateway:
@@ -22,6 +30,18 @@ spring:
             - Path=/api/packages/**
           filters:
             - StripPrefix=0
+            # Add filter to handle large file uploads
+            - name: RequestSize
+              args:
+                maxSize: 50MB
+
+        - id: PACKAGE-IMAGES
+          uri: lb://PACKAGE-SERVICE
+          predicates:
+            - Path=/api/packages/images/**
+          filters:
+            - StripPrefix=2
+            - RewritePath=/api/packages/images/(?<filename>.*), /uploads/packages/${filename}
 
         - id: BOOKING-SERVICE
           uri: lb://BOOKING-SERVICE
@@ -57,6 +77,7 @@ spring:
             - Path=/api/reviews/**
           filters:
             - StripPrefix=0
+
 eureka:
   client:
     service-url:
