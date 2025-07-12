@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Travel Booking - User Service",
+		"description": "Collection for testing User Service endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"CUSTOMER\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/users",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8081",
+					"path": ["api", "users"]
+				}
+			}
+		},
+		{
+			"name": "Get User by ID",
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "http://localhost:8081/api/users/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8081",
+					"path": ["api", "users", "1"]
+				}
+			}
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"updated@example.com\",\n    \"firstName\": \"Updated\",\n    \"lastName\": \"User\",\n    \"role\": \"CUSTOMER\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/users/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8081",
+					"path": ["api", "users", "1"]
+				}
+			}
+		},
+		{
+			"name": "Search Users",
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "http://localhost:8081/api/users/search",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8081",
+					"path": ["api", "users", "search"]
+				}
+			}
+		},
+		{
+			"name": "Delete User",
+			"request": {
+				"method": "DELETE",
+				"url": {
+					"raw": "http://localhost:8081/api/users/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8081",
+					"path": ["api", "users", "1"]
+				}
+			}
+		}
+	]
+} 
