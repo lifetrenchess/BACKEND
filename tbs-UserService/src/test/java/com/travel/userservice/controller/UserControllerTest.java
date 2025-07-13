@@ -49,12 +49,12 @@ class UserControllerTest {
     }
 
     @Test
-    void createUserTest() throws Exception {
+    void registerUserTest() throws Exception {
         UserDto userDto = sampleUserDto();
 
-        when(userService.createUser(any(UserDto.class))).thenReturn(userDto);
+        when(userService.registerUser(any(UserDto.class))).thenReturn(userDto);
 
-        mockMvc.perform(post("/user-api/users")
+        mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isCreated())
@@ -67,7 +67,7 @@ class UserControllerTest {
 
         when(userService.getUserById(1L)).thenReturn(userDto);
 
-        mockMvc.perform(get("/user-api/users/1"))
+        mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userEmail").value("ayush@example.com"));
     }
@@ -81,7 +81,7 @@ class UserControllerTest {
 
         when(userService.getAllUsers()).thenReturn(users);
 
-        mockMvc.perform(get("/user-api/users"))
+        mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(2));
     }
@@ -100,7 +100,7 @@ class UserControllerTest {
 
         when(userService.updateUser(eq(1L), any(UserDto.class))).thenReturn(updatedDto);
 
-        mockMvc.perform(put("/user-api/users/1")
+        mockMvc.perform(put("/api/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedDto)))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class UserControllerTest {
 //    void deleteUserTest() throws Exception {
 //        doNothing().when(userService).deleteUser(1L);
 //
-//        mockMvc.perform(delete("/user-api/users/1"))
+//        mockMvc.perform(delete("/api/users/1"))
 //                .andExpect(status().isNoContent());
 //    }
     
@@ -122,7 +122,7 @@ class UserControllerTest {
     void deleteUserTest() throws Exception {
         doNothing().when(userService).deleteUser(1L);
 
-        mockMvc.perform(delete("/user-api/users/1"))
+        mockMvc.perform(delete("/api/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("User with Id1 has been deleted successfully."));
     }
@@ -148,7 +148,7 @@ class UserControllerTest {
 
         when(userService.updateUserProfile(eq(1L), any(UserProfileDto.class))).thenReturn(updatedUser);
 
-        mockMvc.perform(put("/user-api/users/1/profile")
+        mockMvc.perform(put("/api/users/1/profile")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(profileDto)))
                 .andExpect(status().isOk())
@@ -166,7 +166,7 @@ class UserControllerTest {
 //
 //        when(userService.authenticateUser(any(AuthDto.class))).thenReturn(userDto);
 //
-//        mockMvc.perform(post("/user-api/users/auth")
+//        mockMvc.perform(post("/api/users/auth")
 //                .contentType(MediaType.APPLICATION_JSON)
 //                .content(objectMapper.writeValueAsString(authDto)))
 //                .andExpect(status().isOk())
@@ -179,7 +179,7 @@ class UserControllerTest {
 
         when(userService.authenticateUser(any(AuthDto.class))).thenReturn("Login successful");
 
-        mockMvc.perform(post("/user-api/users/login")
+        mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authDto)))
                 .andExpect(status().isOk())
@@ -201,7 +201,7 @@ class UserControllerTest {
 
         when(userService.searchUsers(any(UserSearchDto.class))).thenReturn(result);
 
-        mockMvc.perform(post("/user-api/users/search")
+        mockMvc.perform(post("/api/users/search")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(searchDto)))
                 .andExpect(status().isOk())

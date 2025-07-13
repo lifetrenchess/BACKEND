@@ -8,7 +8,7 @@ import com.travel.userservice.model.UserProfileDto;
 import com.travel.userservice.model.UserSearchDto;
 
 public interface UserService {
-	public UserDto createUser(UserDto userDto);
+	public UserDto registerUser(UserDto userDto);
 	public UserDto createUserByAdmin(UserDto userDto);
 	public UserDto getUserById(Long userId);
 	public List<UserDto> getAllUsers();

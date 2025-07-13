@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.GrantedAuthority;
  
 import com.travel.userservice.entity.User;
+import com.travel.userservice.entity.UserRole;
 import com.travel.userservice.repository.UserRepository;
  
  
@@ -34,6 +35,21 @@ public class CustomUserDetailsService implements UserDetailsService {
 				getAuthorities(user.getUserRole()));
 	}
  
+    private java.util.Collection<? extends GrantedAuthority> getAuthorities(UserRole userRole) {
+        if (userRole == null) {
+            return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        
+        switch (userRole) {
+            case ADMIN:
+                return Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            case TRAVEL_AGENT:
+                return Collections.singletonList(new SimpleGrantedAuthority("ROLE_TRAVEL_AGENT"));
+            case USER:
+            default:
+                return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+    }
 }
  
  

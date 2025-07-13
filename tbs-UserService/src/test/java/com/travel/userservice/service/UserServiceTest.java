@@ -73,7 +73,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_success() {
+    void registerUser_success() {
         // Mock behavior: email doesn't exist
         when(userRepository.existsByUserEmail(userDto.getUserEmail())).thenReturn(false);
 
@@ -87,7 +87,7 @@ class UserServiceTest {
         when(modelMapper.map(user, UserDto.class)).thenReturn(userDto);
 
         // Call method under test
-        UserDto result = userService.createUser(userDto);
+        UserDto result = userService.registerUser(userDto);
 
         // Verify output and interaction
         assertEquals("Ayush", result.getUserName());
@@ -95,12 +95,12 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_emailExists_shouldThrowException() {
+    void registerUser_emailExists_shouldThrowException() {
         // Simulate duplicate email check
         when(userRepository.existsByUserEmail(userDto.getUserEmail())).thenReturn(true);
 
         // Verify that exception is thrown and nothing is saved
-        assertThrows(RuntimeException.class, () -> userService.createUser(userDto));
+        assertThrows(RuntimeException.class, () -> userService.registerUser(userDto));
         verify(userRepository, never()).save(any());
     }
 

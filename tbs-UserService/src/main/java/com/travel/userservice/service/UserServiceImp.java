@@ -41,9 +41,9 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@Transactional
 	@Override
-	public UserDto createUser(UserDto userDto) {
+	@Transactional
+	public UserDto registerUser(UserDto userDto) {
 		if (userRepository.existsByUserEmail(userDto.getUserEmail())) {
 			throw new UserAlreadyExistsException("User with IDs already exists");
 		}
