@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cts.travelpackagebookingsystem.model.PaymentDTO;
+import cts.travelpackagebookingsystem.model.OrderResponse;
 import cts.travelpackagebookingsystem.service.PaymentService;
 import jakarta.validation.Valid;
 
@@ -46,37 +47,53 @@ public class PaymentController {
         }
     }
 	
-	
-	
 	@PostMapping
-	public ResponseEntity<OrderResponse> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
+	public ResponseEntity<?> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
 		try {
 			OrderResponse orderResponse = paymentService.createRazorpayOrder(paymentDTO);
 			return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return ResponseEntity.badRequest().body("Failed to create payment order: " + e.getMessage());
 		}
 	}
 	
 	@GetMapping
-	public List<PaymentDTO> getAllPayment(){
-		return paymentService.getAllPayment();
+	public ResponseEntity<?> getAllPayment() {
+		try {
+			List<PaymentDTO> payments = paymentService.getAllPayment();
+			return ResponseEntity.ok(payments);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to fetch payments: " + e.getMessage());
+		}
 	}
 	
 	@GetMapping("/{id}")
-	public PaymentDTO getPaymentById(@PathVariable Long id) {
-		return paymentService.getPaymentById(id);
+	public ResponseEntity<?> getPaymentById(@PathVariable Long id) {
+		try {
+			PaymentDTO payment = paymentService.getPaymentById(id);
+			return ResponseEntity.ok(payment);
+		} catch (Exception e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 	@PutMapping("/{id}")
-	public PaymentDTO updatePayment(@PathVariable Long id, @RequestBody PaymentDTO paymentDTO) {
-		return paymentService.updatePayment(id, paymentDTO);
+	public ResponseEntity<?> updatePayment(@PathVariable Long id, @Valid @RequestBody PaymentDTO paymentDTO) {
+		try {
+			PaymentDTO updated = paymentService.updatePayment(id, paymentDTO);
+			return ResponseEntity.ok(updated);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to update payment: " + e.getMessage());
+		}
 	}
 	
 	@DeleteMapping("/{id}")
-	public void deletePayment(@PathVariable Long id) {
-		paymentService.deletePayment(id);
+	public ResponseEntity<?> deletePayment(@PathVariable Long id) {
+		try {
+			paymentService.deletePayment(id);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to delete payment: " + e.getMessage());
+		}
 	}
-	
-
 }

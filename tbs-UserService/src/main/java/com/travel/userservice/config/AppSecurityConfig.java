@@ -31,9 +31,9 @@ public class AppSecurityConfig {
          httpSecurity
             .cors(Customizer.withDefaults()) // Enable CORS
             .authorizeHttpRequests(auth ->
-                auth.requestMatchers(HttpMethod.POST, "/user-api/users").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/user-api/users/{userId}").permitAll()
-                    .requestMatchers("/user-api/users/login").permitAll()
+                auth.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/users/{userId}").permitAll()
+                    .requestMatchers("/api/users/login").permitAll()
                     .anyRequest().authenticated()
             );
          httpSecurity.csrf(csrf-> csrf.disable());

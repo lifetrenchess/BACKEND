@@ -25,8 +25,13 @@ public class InsuranceController {
     // Endpoint for the frontend to get the list of AVAILABLE predefined insurance packages
     // Users will see these options to choose from.
     @GetMapping("/packages")
-    public List<InsuranceDTO> getAvailablePredefinedPackages() {
-        return insuranceService.getPredefinedPackages();
+    public ResponseEntity<?> getAvailablePredefinedPackages() {
+        try {
+            List<InsuranceDTO> packages = insuranceService.getPredefinedPackages();
+            return ResponseEntity.ok(packages);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to fetch predefined packages: " + e.getMessage());
+        }
     }
 
     // Endpoint for a user to SELECT one of the predefined packages for a booking.
@@ -66,37 +71,67 @@ public class InsuranceController {
     // Admin: Update any insurance record (predefined package template or a user's selection).
     // Be careful with what fields can be updated depending on status.
     @PutMapping("/{id}")
-    public InsuranceDTO updateInsuranceRecord(@PathVariable Long id, @Valid @RequestBody InsuranceDTO dto) {
-        return insuranceService.updateInsurance(id, dto);
+    public ResponseEntity<?> updateInsuranceRecord(@PathVariable Long id, @Valid @RequestBody InsuranceDTO dto) {
+        try {
+            InsuranceDTO updated = insuranceService.updateInsurance(id, dto);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to update insurance record: " + e.getMessage());
+        }
     }
 
     // Admin: Delete any insurance record (use with caution, especially for templates)
     @DeleteMapping("/{id}")
-    public void deleteInsuranceRecord(@PathVariable Long id) {
-        insuranceService.deleteInsurance(id);
+    public ResponseEntity<?> deleteInsuranceRecord(@PathVariable Long id) {
+        try {
+            insuranceService.deleteInsurance(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to delete insurance record: " + e.getMessage());
+        }
     }
 
     // Admin/Reporting: Get a specific insurance record by its ID (template or selection)
     @GetMapping("/{id}")
-    public InsuranceDTO getInsuranceRecordById(@PathVariable Long id) {
-        return insuranceService.getInsuranceById(id);
+    public ResponseEntity<?> getInsuranceRecordById(@PathVariable Long id) {
+        try {
+            InsuranceDTO record = insuranceService.getInsuranceById(id);
+            return ResponseEntity.ok(record);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Admin/Reporting: Get ALL insurance records (predefined templates + all user selections)
     @GetMapping // Renamed from getAll to a clearer path
-    public List<InsuranceDTO> getAllInsuranceRecords() {
-        return insuranceService.getAllInsurance();
+    public ResponseEntity<?> getAllInsuranceRecords() {
+        try {
+            List<InsuranceDTO> records = insuranceService.getAllInsurance();
+            return ResponseEntity.ok(records);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to fetch insurance records: " + e.getMessage());
+        }
     }
 
     // Reporting: Get all insurance selections for a specific booking (user-made selections only)
     @GetMapping("/selections/booking/{bookingId}")
-    public List<InsuranceDTO> getInsuranceSelectionsByBookingId(@PathVariable Long bookingId) {
-        return insuranceService.getInsuranceSelectionsByBookingId(bookingId);
+    public ResponseEntity<?> getInsuranceSelectionsByBookingId(@PathVariable Long bookingId) {
+        try {
+            List<InsuranceDTO> selections = insuranceService.getInsuranceSelectionsByBookingId(bookingId);
+            return ResponseEntity.ok(selections);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to fetch insurance selections: " + e.getMessage());
+        }
     }
 
     // Reporting: Get all insurance selections made by a specific user (user-made selections only)
     @GetMapping("/selections/user/{userId}")
-    public List<InsuranceDTO> getInsuranceSelectionsByUserId(@PathVariable Long userId) {
-        return insuranceService.getInsuranceSelectionsByUserId(userId);
+    public ResponseEntity<?> getInsuranceSelectionsByUserId(@PathVariable Long userId) {
+        try {
+            List<InsuranceDTO> selections = insuranceService.getInsuranceSelectionsByUserId(userId);
+            return ResponseEntity.ok(selections);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to fetch user insurance selections: " + e.getMessage());
+        }
     }
 }

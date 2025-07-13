@@ -20,7 +20,7 @@ import java.util.List;
  * Handles registration, login, profile, and admin operations.
  */
 @RestController
-@RequestMapping("/user-api/users")
+@RequestMapping("/api/users")
 public class UserController {
    
     @Autowired
@@ -35,9 +35,9 @@ public class UserController {
      * @return Created user
      */
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
-    	System.out.println(userDto);
-        return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
+    public ResponseEntity<UserDto> registerUser(@Valid @RequestBody UserDto userDto) {
+        UserDto savedUser = userService.registerUser(userDto);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     /**

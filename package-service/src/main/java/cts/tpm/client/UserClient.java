@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "USER-SERVICE")
 public interface UserClient {
     
-    @GetMapping("/user-api/users/{id}")
+    @GetMapping("/api/users/{id}")
     UserDto getUserById(@PathVariable("id") Long id);
     
-    @GetMapping("/user-api/users/me")
+    @GetMapping("/api/users/me")
     UserDto getCurrentUser(@RequestHeader("Authorization") String token);
     
-    @GetMapping("/user-api/users/verify-agent/{agentId}")
+    @GetMapping("/api/users/verify-agent/{agentId}")
     boolean verifyAgentRole(@PathVariable("agentId") Long agentId, @RequestHeader("Authorization") String token);
 } 
