@@ -42,7 +42,7 @@ public class TravelPackageDto {
 	private String excludeService;
 	private String highlights;
 	private String mainImage; // Primary image for display
-	private String images; // JSON array of additional images
+	private List<String> images; // List of additional image URLs
 	private boolean active = true; // Default to active
 	
 	// Agent management fields

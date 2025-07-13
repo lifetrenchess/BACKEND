@@ -6,8 +6,8 @@ import cts.rcss.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cts.rcss.exception.ResourceNotFoundException;
-//import  cts.rcss.PackageServiceClient;
-//import  cts.rcss.UserServiceClient;
+import cts.rcss.PackageServiceClient;
+import cts.rcss.UserServiceClient;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +19,6 @@ public class ReviewService {
 
 	@Autowired
 	private PackageServiceClient packageServiceClient;
-
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -40,7 +39,7 @@ public class ReviewService {
         // Validate user
         try {
             UserDTO user = userServiceClient.getUserById(dto.getuserId());
-            if (user == null || user.getUserId() == null) {
+            if (user == null) {
                 throw new ResourceNotFoundException("User not found with ID: " + dto.getuserId());
             }
         } catch (Exception e) {
@@ -50,7 +49,7 @@ public class ReviewService {
         // Validate package
         try {
             PackageDTO pkg = packageServiceClient.getPackageById(dto.getpackageId());
-            if (pkg == null || pkg.getPackageId() == null) {
+            if (pkg == null) {
                 throw new ResourceNotFoundException("Package not found with ID: " + dto.getpackageId());
             }
         } catch (Exception e) {
@@ -68,7 +67,7 @@ public class ReviewService {
         Review saved = reviewRepository.save(review);
         return convertToDTO(saved);
     }
-//
+
     public ReviewDTO updateReview(int id, ReviewDTO dto) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with ID: " + id));
@@ -76,7 +75,7 @@ public class ReviewService {
         // Validate user
         try {
             UserDTO user = userServiceClient.getUserById(dto.getuserId());
-            if (user == null || user.getUserId() == null) {
+            if (user == null) {
                 throw new ResourceNotFoundException("User not found with ID: " + dto.getuserId());
             }
         } catch (Exception e) {
@@ -86,7 +85,7 @@ public class ReviewService {
         // Validate package
         try {
             PackageDTO pkg = packageServiceClient.getPackageById(dto.getpackageId());
-            if (pkg == null || pkg.getPackageId() == null) {
+            if (pkg == null) {
                 throw new ResourceNotFoundException("Package not found with ID: " + dto.getpackageId());
             }
         } catch (Exception e) {
@@ -102,7 +101,6 @@ public class ReviewService {
 
         return convertToDTO(reviewRepository.save(review));
     }
-
 
     public ReviewDTO respondToReview(int id, String response) {
         Review review = reviewRepository.findById(id)

@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cts.travelpackagebookingsystem.enums.BookingStatus;
 import cts.travelpackagebookingsystem.model.BookingDTO;
 import cts.travelpackagebookingsystem.service.BookingService;
-
-
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -28,32 +26,52 @@ public class BookingController {
 	private BookingService bookingService;
 	
 	@PostMapping
-	public ResponseEntity<BookingDTO> createBooking(@RequestBody BookingDTO bookingDto) {
-	    BookingDTO saved = bookingService.saveBooking(bookingDto);
-	    return new ResponseEntity<>(saved, HttpStatus.CREATED);
+	public ResponseEntity<?> createBooking(@Valid @RequestBody BookingDTO bookingDto) {
+		try {
+			BookingDTO saved = bookingService.saveBooking(bookingDto);
+			return new ResponseEntity<>(saved, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to create booking: " + e.getMessage());
+		}
 	}
 
-	
 	@GetMapping
-	public List<BookingDTO> getAllBookings(){
-		return bookingService.getAllBookings();
+	public ResponseEntity<?> getAllBookings() {
+		try {
+			List<BookingDTO> bookings = bookingService.getAllBookings();
+			return ResponseEntity.ok(bookings);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to fetch bookings: " + e.getMessage());
+		}
 	}
 	
 	@GetMapping("/{id}")
-	public BookingDTO getBookingById(@PathVariable Long id) {
-		return bookingService.getBookingById(id);
+	public ResponseEntity<?> getBookingById(@PathVariable Long id) {
+		try {
+			BookingDTO booking = bookingService.getBookingById(id);
+			return ResponseEntity.ok(booking);
+		} catch (Exception e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 	@PutMapping("/{id}")
-	public BookingDTO updateBooking(@PathVariable Long id, @RequestBody BookingDTO bookingDTO) {
-		return bookingService.updateBooking(id, bookingDTO);
+	public ResponseEntity<?> updateBooking(@PathVariable Long id, @Valid @RequestBody BookingDTO bookingDTO) {
+		try {
+			BookingDTO updated = bookingService.updateBooking(id, bookingDTO);
+			return ResponseEntity.ok(updated);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to update booking: " + e.getMessage());
+		}
 	}
 	
 	@DeleteMapping("/{id}")
-	public void deleteBooking(@PathVariable Long id) {
-		 bookingService.deleteBooking(id);
+	public ResponseEntity<?> deleteBooking(@PathVariable Long id) {
+		try {
+			bookingService.deleteBooking(id);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to delete booking: " + e.getMessage());
+		}
 	}
-	
-	
-
 }

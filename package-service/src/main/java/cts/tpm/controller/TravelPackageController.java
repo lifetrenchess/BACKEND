@@ -12,8 +12,6 @@ import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,7 +26,7 @@ public class TravelPackageController {
 	private FileUploadService fileUploadService;
 
 	@PostMapping
-	public ResponseEntity<TravelPackageDto> createPackage(
+	public ResponseEntity<?> createPackage(
 			@RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
 			@RequestParam(value = "additionalImages", required = false) MultipartFile[] additionalImages,
 			@RequestParam("packageData") String packageData) {
@@ -61,9 +59,9 @@ public class TravelPackageController {
 			return ResponseEntity.ok(createdPackage);
 			
 		} catch (IOException e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body("Failed to upload image: " + e.getMessage());
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body("Failed to create package: " + e.getMessage());
 		}
 	}
 	
@@ -78,18 +76,22 @@ public class TravelPackageController {
 			return ResponseEntity.ok(imagePath);
 		} catch (IOException e) {
 			return ResponseEntity.badRequest().body("Failed to upload image: " + e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to update package image: " + e.getMessage());
 		}
 	}
 	
 	@PostMapping("/{id}/images")
-	public ResponseEntity<List<String>> uploadPackageImages(
+	public ResponseEntity<?> uploadPackageImages(
 			@PathVariable Long id,
 			@RequestParam("images") MultipartFile[] images) {
 		try {
 			List<String> imagePaths = travelPackageService.addPackageImages(id, images);
 			return ResponseEntity.ok(imagePaths);
 		} catch (IOException e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body("Failed to upload images: " + e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to add package images: " + e.getMessage());
 		}
 	}
 
@@ -117,31 +119,54 @@ public class TravelPackageController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<TravelPackageDto> getPackageById(@PathVariable Long id) {
-		return ResponseEntity.ok(travelPackageService.getPackageById(id));
+	public ResponseEntity<?> getPackageById(@PathVariable Long id) {
+		try {
+			TravelPackageDto packageDto = travelPackageService.getPackageById(id);
+			return ResponseEntity.ok(packageDto);
+		} catch (Exception e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<TravelPackageDto> updatePackage(@PathVariable Long id,
-			@RequestBody TravelPackageDto travelPackageDto) {
-		return ResponseEntity.ok(travelPackageService.updatePackage(id, travelPackageDto));
+	public ResponseEntity<?> updatePackage(@PathVariable Long id,
+			@Valid @RequestBody TravelPackageDto travelPackageDto) {
+		try {
+			TravelPackageDto updatedPackage = travelPackageService.updatePackage(id, travelPackageDto);
+			return ResponseEntity.ok(updatedPackage);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to update package: " + e.getMessage());
+		}
 	}
 
 	@PutMapping("/{id}/status")
-	public ResponseEntity<TravelPackageDto> updatePackageStatus(@PathVariable Long id,
+	public ResponseEntity<?> updatePackageStatus(@PathVariable Long id,
 			@RequestParam boolean active) {
-		return ResponseEntity.ok(travelPackageService.updatePackageStatus(id, active));
+		try {
+			TravelPackageDto updatedPackage = travelPackageService.updatePackageStatus(id, active);
+			return ResponseEntity.ok(updatedPackage);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to update package status: " + e.getMessage());
+		}
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deletePackage(@PathVariable Long id) {
-		travelPackageService.deletePackage(id);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<?> deletePackage(@PathVariable Long id) {
+		try {
+			travelPackageService.deletePackage(id);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to delete package: " + e.getMessage());
+		}
 	}
 	
 	@DeleteMapping("/{id}/image/{imageIndex}")
-	public ResponseEntity<Void> deletePackageImage(@PathVariable Long id, @PathVariable int imageIndex) {
-		travelPackageService.deletePackageImage(id, imageIndex);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<?> deletePackageImage(@PathVariable Long id, @PathVariable int imageIndex) {
+		try {
+			travelPackageService.deletePackageImage(id, imageIndex);
+			return ResponseEntity.noContent().build();
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to delete package image: " + e.getMessage());
+		}
 	}
 }

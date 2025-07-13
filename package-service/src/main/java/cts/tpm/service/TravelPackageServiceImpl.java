@@ -43,7 +43,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 
 	@Override
 	public TravelPackageDto createPackage(@Valid TravelPackageDto travelPackageDto) {
-		TravelPackage travelPackage = modelMapper.map(travelPackageDto, TravelPackage.class);
+		TravelPackage travelPackage = convertDtoToEntity(travelPackageDto);
 		if (travelPackage.getFlights() != null) {
 			travelPackage.getFlights().forEach(flight -> flight.setTravelPackage(travelPackage));
 		}
@@ -54,25 +54,25 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 			travelPackage.getSightseeingList().forEach(sightseeing -> sightseeing.setTravelPackage(travelPackage));
 		}
 		TravelPackage saved = travelPackageRepository.save(travelPackage);
-		return modelMapper.map(saved, TravelPackageDto.class);
+		return convertEntityToDto(saved);
 	}
 
 	@Override
 	public List<TravelPackageDto> getAllPackages() {
 		List<TravelPackage> packages = travelPackageRepository.findAll();
-		return packages.stream().map(pkg -> modelMapper.map(pkg, TravelPackageDto.class)).collect(Collectors.toList());
+		return packages.stream().map(this::convertEntityToDto).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<TravelPackageDto> getAllActivePackages() {
 		List<TravelPackage> packages = travelPackageRepository.findByActiveTrue();
-		return packages.stream().map(pkg -> modelMapper.map(pkg, TravelPackageDto.class)).collect(Collectors.toList());
+		return packages.stream().map(this::convertEntityToDto).collect(Collectors.toList());
 	}
 	
 	@Override
 	public List<TravelPackageDto> getPackagesByAgent(Long agentId) {
 		List<TravelPackage> packages = travelPackageRepository.findByCreatedByAgentId(agentId);
-		return packages.stream().map(pkg -> modelMapper.map(pkg, TravelPackageDto.class)).collect(Collectors.toList());
+		return packages.stream().map(this::convertEntityToDto).collect(Collectors.toList());
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 					
 					return true;
 				})
-				.map(pkg -> modelMapper.map(pkg, TravelPackageDto.class))
+				.map(this::convertEntityToDto)
 				.collect(Collectors.toList());
 	}
 
@@ -104,7 +104,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 	public TravelPackageDto getPackageById(Long id) {
 		TravelPackage travelPackage = travelPackageRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Package not found with id: " + id));
-		return modelMapper.map(travelPackage, TravelPackageDto.class);
+		return convertEntityToDto(travelPackage);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 		TravelPackage existing = travelPackageRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Package not found with id: " + id));
 
-		TravelPackage updatedEntity = modelMapper.map(updatedDto, TravelPackage.class);
+		TravelPackage updatedEntity = convertDtoToEntity(updatedDto);
 		updatedEntity.setPackageId(id); // preserving the ID
 
 		if (updatedEntity.getFlights() != null) {
@@ -125,7 +125,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 			updatedEntity.getSightseeingList().forEach(sightseeing -> sightseeing.setTravelPackage(updatedEntity));
 		}
 		TravelPackage saved = travelPackageRepository.save(updatedEntity);
-		return modelMapper.map(saved, TravelPackageDto.class);
+		return convertEntityToDto(saved);
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 		
 		existing.setActive(active);
 		TravelPackage saved = travelPackageRepository.save(existing);
-		return modelMapper.map(saved, TravelPackageDto.class);
+		return convertEntityToDto(saved);
 	}
 	
 	@Override
@@ -153,7 +153,7 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 		}
 		
 		TravelPackage saved = travelPackageRepository.save(existing);
-		return modelMapper.map(saved, TravelPackageDto.class);
+		return convertEntityToDto(saved);
 	}
 	
 	@Override
@@ -206,6 +206,29 @@ public class TravelPackageServiceImpl implements TravelPackageService {
 		}
 		
 		travelPackageRepository.delete(travelPackage);
+	}
+
+	// Custom conversion methods to handle String <-> List<String> mapping
+	private TravelPackageDto convertEntityToDto(TravelPackage entity) {
+		TravelPackageDto dto = modelMapper.map(entity, TravelPackageDto.class);
+		// Convert String images to List<String>
+		if (entity.getImages() != null) {
+			dto.setImages(getImagesList(entity.getImages()));
+		} else {
+			dto.setImages(new ArrayList<>());
+		}
+		return dto;
+	}
+	
+	private TravelPackage convertDtoToEntity(TravelPackageDto dto) {
+		TravelPackage entity = modelMapper.map(dto, TravelPackage.class);
+		// Convert List<String> images to String
+		if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+			entity.setImages(convertImagesListToString(dto.getImages()));
+		} else {
+			entity.setImages("[]");
+		}
+		return entity;
 	}
 
 	// Helper methods for image management

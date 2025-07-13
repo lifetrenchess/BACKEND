@@ -46,7 +46,8 @@ class PaymentControllerTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule()); 
 
-        paymentDTO = new PaymentDTO(1L, 101L, 575770.00, "PAID", "Credit Card", null);
+        // Fix constructor call: (paymentId, userId, amount, status, paymentMethod, currency, bookingId)
+        paymentDTO = new PaymentDTO(1L, 101L, 575770.00, "PAID", "Credit Card", "USD", 1L);
     }
 
     @Test
@@ -81,7 +82,8 @@ class PaymentControllerTest {
 
     @Test
     void testUpdatePayment() throws Exception {
-        PaymentDTO updatedDTO = new PaymentDTO(1L, 101L, 575770.00, "UPDATED", "UPI", null);
+        // Fix constructor call: (paymentId, userId, amount, status, paymentMethod, currency, bookingId)
+        PaymentDTO updatedDTO = new PaymentDTO(1L, 101L, 575770.00, "UPDATED", "UPI", "USD", 1L);
 
         when(paymentService.updatePayment(eq(1L), any(PaymentDTO.class))).thenReturn(updatedDTO);
 

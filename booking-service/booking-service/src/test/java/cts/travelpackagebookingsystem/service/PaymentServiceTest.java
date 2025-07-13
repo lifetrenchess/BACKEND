@@ -43,18 +43,10 @@ class PaymentServiceTest {
 
     private PaymentDTO paymentDto;
     private Payment payment;
-    private BookingDTO bookingDto;
     private Booking booking;
 
     @BeforeEach
     void setUp() {
-       
-        bookingDto = new BookingDTO(1L, 101L, 201L, 
-                LocalDate.of(2025, 6, 11), 
-                LocalDate.of(2025, 6, 25), 
-                BookingStatus.CONFIRMED, 
-                null);
-
         booking = new Booking();
         booking.setBookingId(1L);
         booking.setUserId(101L);
@@ -63,8 +55,8 @@ class PaymentServiceTest {
         booking.setEndDate(LocalDate.of(2025, 6, 25));
         booking.setStatus(BookingStatus.CONFIRMED);
 
-       
-        paymentDto = new PaymentDTO(1001L, 2001L, 575770.00, "PAID", "Credit Card", booking.getBookingId());
+        // Fix constructor call: (paymentId, userId, amount, status, paymentMethod, currency, bookingId)
+        paymentDto = new PaymentDTO(1001L, 2001L, 575770.00, "PAID", "Credit Card", "USD", booking.getBookingId());
 
         payment = new Payment();
         payment.setPaymentId(1001L);
