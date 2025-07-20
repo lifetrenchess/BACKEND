@@ -36,7 +36,16 @@ public class BookingDTO {
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	private BookingStatus status;
 	
-	private Payment payment;
+	// Traveler information
+	private Integer adults;
+	private Integer children;
+	private Integer infants;
+	private String contactFullName;
+	private String contactEmail;
+	private String contactPhone;
+	private String travelerNames;
+	private Boolean hasInsurance;
+	private String insurancePlan;
 	
-
+	private Payment payment;
 }
