@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cts.tpm.exception.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/api/packages")
@@ -155,16 +156,31 @@ public class TravelPackageController {
 		try {
 			travelPackageService.deletePackage(id);
 			return ResponseEntity.noContent().build();
+		} catch (ResourceNotFoundException e) {
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Failed to delete package: " + e.getMessage());
+			String errorMessage = e.getMessage();
+			
+			// Check for specific database constraint violations
+			if (errorMessage.contains("foreign key constraint") || errorMessage.contains("constraint")) {
+				return ResponseEntity.badRequest().body("Cannot delete package: It has active bookings or dependencies. Please deactivate the package instead.");
+			}
+			
+			// Check for file system errors
+			if (errorMessage.contains("file") || errorMessage.contains("image")) {
+				return ResponseEntity.badRequest().body("Failed to delete package images: " + errorMessage);
+			}
+			
+			// Generic error
+			return ResponseEntity.badRequest().body("Failed to delete package: " + errorMessage);
 		}
 	}
 	
 	@DeleteMapping("/{id}/image/{imageIndex}")
 	public ResponseEntity<?> deletePackageImage(@PathVariable Long id, @PathVariable int imageIndex) {
 		try {
-			travelPackageService.deletePackageImage(id, imageIndex);
-			return ResponseEntity.noContent().build();
+		travelPackageService.deletePackageImage(id, imageIndex);
+		return ResponseEntity.noContent().build();
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Failed to delete package image: " + e.getMessage());
 		}

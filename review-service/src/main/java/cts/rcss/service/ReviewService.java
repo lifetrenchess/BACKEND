@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import cts.rcss.exception.ResourceNotFoundException;
 import cts.rcss.PackageServiceClient;
 import cts.rcss.UserServiceClient;
+import cts.rcss.BookingServiceClient;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,9 @@ public class ReviewService {
 
 	@Autowired
 	private PackageServiceClient packageServiceClient;
+
+	@Autowired
+	private BookingServiceClient bookingServiceClient;
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -54,6 +58,16 @@ public class ReviewService {
             }
         } catch (Exception e) {
             throw new ResourceNotFoundException("Failed to validate package: " + e.getMessage());
+        }
+
+        // Validate booking
+        try {
+            BookingDTO booking = bookingServiceClient.getBookingByUserIdAndPackageId(dto.getuserId(), dto.getpackageId());
+            if (booking == null) {
+                throw new ResourceNotFoundException("User has not booked this package.");
+            }
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Failed to validate booking: " + e.getMessage());
         }
 
         // Create and save review

@@ -45,6 +45,30 @@ public class BookingController {
 		}
 	}
 	
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<?> getBookingsByUserId(@PathVariable Long userId) {
+		try {
+			List<BookingDTO> bookings = bookingService.getBookingsByUserId(userId);
+			return ResponseEntity.ok(bookings);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to fetch user bookings: " + e.getMessage());
+		}
+	}
+	
+	@GetMapping("/user/{userId}/package/{packageId}")
+	public ResponseEntity<?> getBookingByUserIdAndPackageId(@PathVariable Long userId, @PathVariable Long packageId) {
+		try {
+			BookingDTO booking = bookingService.getBookingByUserIdAndPackageId(userId, packageId);
+			if (booking != null) {
+				return ResponseEntity.ok(booking);
+			} else {
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to fetch booking: " + e.getMessage());
+		}
+	}
+	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getBookingById(@PathVariable Long id) {
 		try {

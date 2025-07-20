@@ -27,26 +27,7 @@ public class PaymentController {
 	@Autowired
 	private PaymentService paymentService;
 	
-	@PostMapping("/verifyPayment")
-    public ResponseEntity<String> verifyPayment(@RequestBody Map<String, Object> data) {
-        String razorpayOrderId = (String) data.get("razorpay_order_id");
-        String razorpayPaymentId = (String) data.get("razorpay_payment_id");
-        String razorpaySignature = (String) data.get("razorpay_signature");
-
-        if (razorpayOrderId == null || razorpayPaymentId == null || razorpaySignature == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Missing required Razorpay parameters for verification.");
-        }
-
-        try {
-            String result = paymentService.verifyPayment(razorpayOrderId, razorpayPaymentId, razorpaySignature);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error verifying payment: " + e.getMessage());
-        }
-    }
-	
+	// Create Razorpay order
 	@PostMapping
 	public ResponseEntity<?> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
 		try {
@@ -56,7 +37,40 @@ public class PaymentController {
 			return ResponseEntity.badRequest().body("Failed to create payment order: " + e.getMessage());
 		}
 	}
+
+	// Verify Razorpay payment
+	@PostMapping("/verify")
+	public ResponseEntity<String> verifyPayment(@RequestBody Map<String, Object> data) {
+		String razorpayOrderId = (String) data.get("razorpay_order_id");
+		String razorpayPaymentId = (String) data.get("razorpay_payment_id");
+		String razorpaySignature = (String) data.get("razorpay_signature");
+
+		if (razorpayOrderId == null || razorpayPaymentId == null || razorpaySignature == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Missing required Razorpay parameters for verification.");
+		}
+
+		try {
+			String result = paymentService.verifyPayment(razorpayOrderId, razorpayPaymentId, razorpaySignature);
+			return ResponseEntity.ok(result);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error verifying payment: " + e.getMessage());
+		}
+	}
+
+	// Mock payment endpoint (alternative)
+	@PostMapping("/mock")
+	public ResponseEntity<?> createMockPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
+		try {
+			PaymentDTO payment = paymentService.createMockPayment(paymentDTO);
+			return new ResponseEntity<>(payment, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Failed to create mock payment: " + e.getMessage());
+		}
+	}
 	
+	// Get all payments
 	@GetMapping
 	public ResponseEntity<?> getAllPayment() {
 		try {
@@ -67,6 +81,7 @@ public class PaymentController {
 		}
 	}
 	
+	// Get payment by ID
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getPaymentById(@PathVariable Long id) {
 		try {
@@ -77,6 +92,7 @@ public class PaymentController {
 		}
 	}
 	
+	// Update payment
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updatePayment(@PathVariable Long id, @Valid @RequestBody PaymentDTO paymentDTO) {
 		try {
@@ -87,6 +103,7 @@ public class PaymentController {
 		}
 	}
 	
+	// Delete payment
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deletePayment(@PathVariable Long id) {
 		try {

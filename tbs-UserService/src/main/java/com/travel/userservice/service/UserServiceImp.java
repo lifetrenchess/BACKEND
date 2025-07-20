@@ -2,6 +2,8 @@ package com.travel.userservice.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,10 +88,6 @@ public class UserServiceImp implements UserService {
 
 		User user = userRepository.findByUserEmail(authDto.getUserEmail())
 				.orElseThrow(() -> new RuntimeException("Invalid email or password"));
-
-		// 🔐 Use matches() to compare raw with encoded
-//		if (!passwordEncoder.matches(authDto.getUserPassword(), user.getUserPassword())) {
-//			throw new RuntimeException("Invalid email or password");}
 
 		String token = jwtUtility.generateToken(user.getUserEmail());
 

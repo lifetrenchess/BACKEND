@@ -17,11 +17,13 @@ public class PaymentDTO {
 	@NotNull(message = "User ID is required")
 	private Long userId;
 	
+	@NotNull(message = "Booking ID is required")
+	private Long bookingId;
+	
 	@NotNull(message = "Amount is required")
 	@DecimalMin(value = "0.0", inclusive = false, message = "Amount must be positive")
 	private Double amount;
 	
-//	@NotBlank(message = "Status is required")
 	private String status;
 	
 	@NotBlank(message = "Payment method is required")
@@ -29,7 +31,4 @@ public class PaymentDTO {
 	
 	@NotBlank(message = "Currency is required")
 	private String currency;
-	
-	private Long bookingId;
-
 }

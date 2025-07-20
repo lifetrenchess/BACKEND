@@ -66,6 +66,18 @@ public class BookingService {
                 .map(booking -> modelMapper.map(booking, BookingDTO.class))
                 .toList();
 		}
+	
+	public List<BookingDTO> getBookingsByUserId(Long userId) {
+		return bookingRepo.findByUserId(userId).stream()
+                .map(booking -> modelMapper.map(booking, BookingDTO.class))
+                .toList();
+	}
+	
+	public BookingDTO getBookingByUserIdAndPackageId(Long userId, Long packageId) {
+		return bookingRepo.findByUserIdAndPackageId(userId, packageId)
+                .map(booking -> modelMapper.map(booking, BookingDTO.class))
+                .orElse(null);
+	}
 		
 		
 	

@@ -18,19 +18,19 @@ public class CreateReviewDTO {
     @Max(value = 5, message = "Rating must be at most 5")
     private int rating;
 
-    public long getuserId() {
+    public long getUserId() {
 		return userId;
 	}
 
-	public void setuserId(long userId) {
+	public void setUserId(long userId) {
 		this.userId = userId;
 	}
 
-	public long getpackageId() {
+	public long getPackageId() {
 		return packageId;
 	}
 
-	public void setpackageId(long packageId) {
+	public void setPackageId(long packageId) {
 		this.packageId = packageId;
 	}
 	//The method getpackageId() is undefined for the type CreateReviewDTO

@@ -15,7 +15,7 @@ public class WebConfig {
         config.setAllowCredentials(true);
         
         // Allow all frontend URLs
-        config.addAllowedOrigin("http://localhost:3000"); // React dev server
+        config.addAllowedOrigin("http://localhost:8081"); // React dev server
         config.addAllowedOrigin("http://localhost:8082"); // Alternative frontend port
         config.addAllowedOrigin("http://10.187.136.187:8082"); // Network frontend
         
